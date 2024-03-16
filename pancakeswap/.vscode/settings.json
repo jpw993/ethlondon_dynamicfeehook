@@ -1,0 +1,7 @@
+{
+    "solidity.defaultCompiler": "remote",
+    "solidity.compileUsingRemoteVersion": "v0.8.24+commit.e11b9ed9"
+    "solidity.packageDefaultDependenciesContractsDirectory": "src",
+    "solidity.packageDefaultDependenciesDirectory": "lib",
+    "solidity.remappings": ["ds-test/=lib/forge-std/lib/ds-test/src/", "forge-std/=lib/forge-std/src/", "@pancakeswap/v4-core/=lib/pancake-v4-core/", "@pancakeswap/v4-periphery/=lib/pancake-v4-periphery/", "@openzeppelin/=lib/openzeppelin-contracts/", "solmate/=lib/solmate/src/"]
+}

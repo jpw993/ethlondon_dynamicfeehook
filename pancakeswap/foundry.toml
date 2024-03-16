@@ -1,0 +1,10 @@
+[profile.default]
+src = 'src'
+out = 'foundry-out'
+solc_version = '0.8.24'
+libs = ["lib"]
+evm_version = 'cancun'
+
+[rpc_endpoints]
+mainnet = "wss://mainnet.infura.io/ws/v3/074e6045535d48209742de982d6dad5a"
+sepolia = "wss://sepolia.infura.io/ws/v3/074e6045535d48209742de982d6dad5a"
