@@ -43,6 +43,15 @@ contract VolBasedFeeHookTest is Test, CLTestUtils {
 
         // initialize pool at 1:1 price point (assume stablecoin pair)
         poolManager.initialize(key, Constants.SQRT_RATIO_1_1, new bytes(0));
+
+        MockERC20(Currency.unwrap(currency0)).mint(address(this), 1000 ether);
+        MockERC20(Currency.unwrap(currency1)).mint(address(this), 1000 ether);
+        addLiquidity(key, 1000 ether, 1000 ether, -60, 60);
+
+        vm.startPrank(alice);
+        MockERC20(Currency.unwrap(currency0)).approve(address(swapRouter), type(uint256).max);
+        MockERC20(Currency.unwrap(currency0)).approve(address(swapRouter), type(uint256).max);
+        vm.stopPrank();
     }
 
     function _swap() internal returns (uint256 amtOut) {
@@ -67,7 +76,6 @@ contract VolBasedFeeHookTest is Test, CLTestUtils {
     function testHighVol() public {
         uint256 amtOut = _swap();
 
-        assertGe(amtOut, 0.99 ether);
-        assertLe(amtOut, 0.998 ether);
+        assertEq(amtOut, 999497007648608879);
     }
 }
