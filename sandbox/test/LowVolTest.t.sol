@@ -8,15 +8,15 @@ contract LowVolTest is Test {
     MarketData public marketData;
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("sepolia"), 5002455); // 1 Jan 2024
+        vm.createSelectFork(vm.rpcUrl("sepolia"), 5206590); // 2 Feb 2024
         marketData = new MarketData();
     }
 
-    function testMarketDataMidVol() public view {
+    function testMarketDataLowVol() public view {
         uint256 price = marketData.getEthUsdPrice();
         uint256 vol = marketData.getEthUsdVol();
 
-        assertEq(price, 234314470000);
-        assertEq(vol, 33857);
+        assertEq(price, 229953802862);
+        assertEq(vol, 32105);
     }
 }
