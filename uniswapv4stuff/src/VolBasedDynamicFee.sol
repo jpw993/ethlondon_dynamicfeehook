@@ -6,16 +6,21 @@ import {BaseHook} from "v4-periphery/BaseHook.sol";
 import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 import {PoolKey} from "v4-core/src/types/PoolKey.sol";
+import {MarketData} from "./MarketData.sol";
 
 contract VolBasedDynamicFeeHook is BaseHook {
     uint256 constant MIN_FEE = 1000; // 0.1%
 
-    constructor(IPoolManager _poolManager) BaseHook(_poolManager) {}
+    MarketData immutable marketDataProvider;
+
+    constructor(IPoolManager _poolManager, MarketData _marketData) BaseHook(_poolManager) {
+        marketDataProvider = _marketData;
+    }
 
     function getHookPermissions() public pure override returns (Hooks.Permissions memory) {
         return Hooks.Permissions({
             beforeInitialize: false,
-            afterInitialize: false, // you can use afterInitialize to set the initial swap fee too
+            afterInitialize: false,
             beforeAddLiquidity: false,
             afterAddLiquidity: false,
             beforeRemoveLiquidity: false,
@@ -27,20 +32,26 @@ contract VolBasedDynamicFeeHook is BaseHook {
         });
     }
 
-    function getVolAndPrice(PoolKey calldata key) public view returns (uint256, uint256) {
-        return (100, 100);
+    function getVolatility() public view returns (uint256) {
+        return marketDataProvider.getEthUsdVol();
     }
 
-    function calculateFee(uint256 volume, uint256 volatility) internal pure returns (uint256 fee) {
-        uint256 volume_factor = 500000; // 50%
-        uint256 volatility_factor = 2740; // 1/365 = 0.274 %
-        // int256 trade_reduces_gap_factor = 1;
-        fee = MIN_FEE + ((volume_factor * (volume * ((volume * 3) / 2))) * (volatility_factor * (volatility ** 2)));
-        // We reduce the fee for when trades bring us further from market because those tend to be more uninformed traders
-        // if (!tradeReducesGap) {
-        //     fee *= trade_reduces_gap_factor;
-        // }
-        return fee;
+    function calculateFee(uint256 volume, uint256 volatility) public pure returns (uint24 fee) {
+        uint256 scaled_volume = volume / 150;
+        uint256 longterm_eth_volatility = 60;
+        uint256 scaled_vol = volatility / longterm_eth_volatility;
+        uint256 constant_factor = 2;
+
+        uint256 fee_per_lot = MIN_FEE + (constant_factor * scaled_volume * scaled_vol ** 2);
+
+        return uint24(fee_per_lot);
+    }
+
+    function abs(int256 x) private pure returns (uint256) {
+        if (x >= 0) {
+            return uint256(x);
+        }
+        return uint256(-x);
     }
 
     function beforeSwap(address, PoolKey calldata key, IPoolManager.SwapParams calldata swapData, bytes calldata)
@@ -48,9 +59,9 @@ contract VolBasedDynamicFeeHook is BaseHook {
         override
         returns (bytes4)
     {
-        (uint256 volatility,) = getVolAndPrice(key);
-        uint256 fee = calculateFee(uint256(swapData.amountSpecified), volatility);
-        poolManager.updateDynamicSwapFee(key, 6900);
+        uint256 volatility = getVolatility();
+        uint24 fee = calculateFee(abs(swapData.amountSpecified), volatility);
+        poolManager.updateDynamicSwapFee(key, fee);
 
         return BaseHook.beforeSwap.selector;
     }
