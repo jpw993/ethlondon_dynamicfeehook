@@ -5,4 +5,6 @@ libs = ["lib"]
 
 remappings = ['@chainlink/contracts/=node_modules/@chainlink/contracts/']
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+[rpc_endpoints]
+mainnet = "wss://mainnet.infura.io/ws/v3/074e6045535d48209742de982d6dad5a"
+sepolia = "wss://sepolia.infura.io/ws/v3/074e6045535d48209742de982d6dad5a"
