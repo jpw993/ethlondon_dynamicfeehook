@@ -63,7 +63,7 @@ contract VolBasedFeeHook is CLBaseHook, ICLDynamicFeeManager {
         uint256 volume_factor = 500000; // 50%
         uint256 volatility_factor = 2740; // 1/365 = 0.274 %
         uint256 trade_reduces_gap_factor = 1;
-        fee = MIN_FEE + (volume_factor * (volume ** 1500000) * (volatility_factor * (volatility ** 2000000)));
+        fee = MIN_FEE + (volume_factor * (volume * ((volume * 3) / 2)) * (volatility_factor * (volatility ** 2)));
         // We reduce the fee for when trades bring us further from market because those tend to be more uninformed traders
         if (!tradeReducesGap) {
             fee *= trade_reduces_gap_factor;
