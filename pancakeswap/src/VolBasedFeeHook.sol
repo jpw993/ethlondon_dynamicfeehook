@@ -7,14 +7,18 @@ import {PoolId, PoolIdLibrary} from "@pancakeswap/v4-core/src/types/PoolId.sol";
 import {ICLPoolManager} from "@pancakeswap/v4-core/src/pool-cl/interfaces/ICLPoolManager.sol";
 import {ICLDynamicFeeManager} from "@pancakeswap/v4-core/src/pool-cl/interfaces/ICLDynamicFeeManager.sol";
 import {CLBaseHook} from "./pool-cl/CLBaseHook.sol";
+import {MarketData} from "./MarketData.sol";
 
 /// @notice VolBasedFeeHook is a contract that sets the fee based on market volatility
 contract VolBasedFeeHook is CLBaseHook, ICLDynamicFeeManager {
     using PoolIdLibrary for PoolKey;
 
     uint256 constant MIN_FEE = 1000; // 0.1%
+    MarketData immutable marketDataProvider;
 
-    constructor(ICLPoolManager _poolManager) CLBaseHook(_poolManager) {}
+    constructor(ICLPoolManager _poolManager, MarketData _marketDataProvider) CLBaseHook(_poolManager) {
+        marketDataProvider = _marketDataProvider;
+    }
 
     function getHooksRegistrationBitmap() external pure override returns (uint16) {
         return _hooksRegistrationBitmapFrom(
