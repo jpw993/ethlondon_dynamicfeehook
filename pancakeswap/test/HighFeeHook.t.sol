@@ -16,7 +16,7 @@ import {FeeLibrary} from "@pancakeswap/v4-core/src/libraries/FeeLibrary.sol";
 import {MarketDataProvider} from "../src/MarketDataProvider.sol";
 import {VolBasedFeeHook} from "../src/VolBasedFeeHook.sol";
 
-contract VolBasedFeeHookTest is Test, CLTestUtils {
+contract HighVolTest is Test, CLTestUtils {
     using PoolIdLibrary for PoolKey;
     using CLPoolParametersHelper for bytes32;
 
