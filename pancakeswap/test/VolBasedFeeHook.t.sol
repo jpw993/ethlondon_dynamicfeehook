@@ -27,6 +27,8 @@ contract VolBasedFeeHookTest is Test, CLTestUtils {
     address alice = makeAddr("alice");
 
     function setUp() public {
+        vm.createSelectFork(vm.rpcUrl("sepolia"));
+
         (currency0, currency1) = deployContractsWithEthUsdTokens();
         volBasedHook = new VolBasedFeeHook(poolManager);
 
@@ -36,7 +38,7 @@ contract VolBasedFeeHookTest is Test, CLTestUtils {
             currency1: currency1,
             hooks: volBasedHook,
             poolManager: poolManager,
-            fee: FeeLibrary.DYNAMIC_FEE_FLAG, //0.3% fee
+            fee: FeeLibrary.DYNAMIC_FEE_FLAG,
             // tickSpacing: 10
             parameters: bytes32(uint256(volBasedHook.getHooksRegistrationBitmap())).setTickSpacing(10)
         });
