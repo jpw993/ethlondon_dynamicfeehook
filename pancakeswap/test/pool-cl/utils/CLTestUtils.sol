@@ -19,6 +19,26 @@ contract CLTestUtils {
     NonfungiblePositionManager nfp;
     CLSwapRouter swapRouter;
 
+    function deployContractsWithEthUsdTokens() internal returns (Currency, Currency) {
+        vault = new Vault();
+        poolManager = new CLPoolManager(vault, 500000);
+        vault.registerPoolManager(address(poolManager));
+
+        nfp = new NonfungiblePositionManager(vault, poolManager, address(0), address(0));
+        swapRouter = new CLSwapRouter(vault, poolManager, address(0));
+
+        MockERC20 token0 = new MockERC20("Wrapped Ether", "WETH", 18);
+        MockERC20 token1 = new MockERC20("USD Coin", "USDC", 18);
+
+        address[2] memory approvalAddress = [address(nfp), address(swapRouter)];
+        for (uint256 i; i < approvalAddress.length; i++) {
+            token0.approve(approvalAddress[i], type(uint256).max);
+            token1.approve(approvalAddress[i], type(uint256).max);
+        }
+
+        return SortTokens.sort(token0, token1);
+    }
+
     function deployContractsWithTokens() internal returns (Currency, Currency) {
         vault = new Vault();
         poolManager = new CLPoolManager(vault, 500000);

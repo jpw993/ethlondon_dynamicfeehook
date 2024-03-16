@@ -8,8 +8,8 @@ import {ICLPoolManager} from "@pancakeswap/v4-core/src/pool-cl/interfaces/ICLPoo
 import {ICLDynamicFeeManager} from "@pancakeswap/v4-core/src/pool-cl/interfaces/ICLDynamicFeeManager.sol";
 import {CLBaseHook} from "./pool-cl/CLBaseHook.sol";
 
-/// @notice VolBasedfeeHook is a contract that sets the fee based on market volatility
-contract VolBasedfeeHook is CLBaseHook, ICLDynamicFeeManager {
+/// @notice VolBasedFeeHook is a contract that sets the fee based on market volatility
+contract VolBasedFeeHook is CLBaseHook, ICLDynamicFeeManager {
     using PoolIdLibrary for PoolKey;
 
     constructor(ICLPoolManager _poolManager) CLBaseHook(_poolManager) {}
@@ -42,5 +42,7 @@ contract VolBasedfeeHook is CLBaseHook, ICLDynamicFeeManager {
         return this.beforeSwap.selector;
     }
 
-    function getFee(address sender, PoolKey calldata key) external view override returns (uint24) {}
+    function getFee(address sender, PoolKey calldata key) external view override returns (uint24) {
+        return 500;
+    }
 }
