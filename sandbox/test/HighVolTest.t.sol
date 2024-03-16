@@ -17,6 +17,6 @@ contract highVolTest is Test {
         uint256 vol = marketData.getEthUsdVol();
 
         assertEq(price, 251724564685);
-        assertEq(vol, 102205);
+        assertEq(vol, 102205); // 102.205%
     }
 }

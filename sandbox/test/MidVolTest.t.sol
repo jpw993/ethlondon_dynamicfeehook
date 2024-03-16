@@ -17,6 +17,6 @@ contract MidVolTest is Test {
         uint256 vol = marketData.getEthUsdVol();
 
         assertEq(price, 234314470000);
-        assertEq(vol, 33857);
+        assertEq(vol, 33857); // 33.857%
     }
 }

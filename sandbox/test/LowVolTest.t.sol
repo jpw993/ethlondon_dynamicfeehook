@@ -17,6 +17,6 @@ contract LowVolTest is Test {
         uint256 vol = marketData.getEthUsdVol();
 
         assertEq(price, 229953802862);
-        assertEq(vol, 32105);
+        assertEq(vol, 32105); // 32.105%
     }
 }
