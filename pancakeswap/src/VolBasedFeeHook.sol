@@ -7,16 +7,18 @@ import {PoolId, PoolIdLibrary} from "@pancakeswap/v4-core/src/types/PoolId.sol";
 import {ICLPoolManager} from "@pancakeswap/v4-core/src/pool-cl/interfaces/ICLPoolManager.sol";
 import {ICLDynamicFeeManager} from "@pancakeswap/v4-core/src/pool-cl/interfaces/ICLDynamicFeeManager.sol";
 import {CLBaseHook} from "./pool-cl/CLBaseHook.sol";
-import {MarketData} from "./MarketData.sol";
+import {MarketDataProvider} from "./MarketDataProvider.sol";
 
 /// @notice VolBasedFeeHook is a contract that sets the fee based on market volatility
 contract VolBasedFeeHook is CLBaseHook, ICLDynamicFeeManager {
     using PoolIdLibrary for PoolKey;
 
-    uint256 constant MIN_FEE = 1000; // 0.1%
-    MarketData immutable marketDataProvider;
+    uint256 constant MIN_FEE = 100; // 0.01%
+    MarketDataProvider immutable marketDataProvider;
 
-    constructor(ICLPoolManager _poolManager, MarketData _marketDataProvider) CLBaseHook(_poolManager) {
+    int256 amountSpecified;
+
+    constructor(ICLPoolManager _poolManager, MarketDataProvider _marketDataProvider) CLBaseHook(_poolManager) {
         marketDataProvider = _marketDataProvider;
     }
 
@@ -38,40 +40,37 @@ contract VolBasedFeeHook is CLBaseHook, ICLDynamicFeeManager {
         );
     }
 
-    function beforeSwap(address, PoolKey calldata key, ICLPoolManager.SwapParams calldata, bytes calldata)
+    function beforeSwap(address, PoolKey calldata key, ICLPoolManager.SwapParams calldata swapParams, bytes calldata)
         external
         override
         poolManagerOnly
         returns (bytes4)
     {
+        amountSpecified = swapParams.amountSpecified;
         poolManager.updateDynamicSwapFee(key);
         return this.beforeSwap.selector;
     }
 
-    function getFee(address sender, PoolKey calldata key) external view override returns (uint24) {
-        return 500;
+    function getFee(address, /*sender*/ PoolKey calldata /*key*/ ) external view override returns (uint24) {
+        uint256 volatility = marketDataProvider.getVol();
+        return getFeeImpl(abs(amountSpecified), volatility / 1000);
     }
 
-    function getFeeImpl(uint256 amt0, uint256 amt1, uint256 volatility, bool tradeReducesGap)
-        internal
-        pure
-        returns (uint256 fee)
-    {
-        uint256 volume;
-        if (amt0 > 0) {
-            volume = amt0;
-        } else {
-            volume = amt1;
+    function abs(int256 x) private pure returns (uint256) {
+        if (x >= 0) {
+            return uint256(x);
         }
+        return uint256(-x);
+    }
 
-        uint256 volume_factor = 500000; // 50%
-        uint256 volatility_factor = 2740; // 1/365 = 0.274 %
-        uint256 trade_reduces_gap_factor = 1;
-        fee = MIN_FEE + (volume_factor * (volume * ((volume * 3) / 2)) * (volatility_factor * (volatility ** 2)));
-        // We reduce the fee for when trades bring us further from market because those tend to be more uninformed traders
-        if (!tradeReducesGap) {
-            fee *= trade_reduces_gap_factor;
-        }
-        return fee;
+    function getFeeImpl(uint256 volume, uint256 volatility) internal pure returns (uint24) {
+        uint256 scaled_volume = volume / 150;
+        uint256 longterm_eth_volatility = 60;
+        uint256 scaled_vol = volatility / longterm_eth_volatility;
+        uint256 constant_factor = 2;
+
+        uint256 fee_per_lot = MIN_FEE + (constant_factor * scaled_volume * scaled_vol ** 2);
+
+        return uint24(fee_per_lot);
     }
 }
