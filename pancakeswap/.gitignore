@@ -7,3 +7,4 @@ foundry-out/
 .vscode/
 .DS_Store
 .idea
+lib/
