@@ -15,3 +15,5 @@ docs/
 
 # NodeModule
 node_modules/
+
+lib/
