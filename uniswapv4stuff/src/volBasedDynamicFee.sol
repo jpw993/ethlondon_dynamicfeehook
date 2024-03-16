@@ -9,7 +9,7 @@ import {PoolKey} from "v4-core/src/types/PoolKey.sol";
 
 contract VolBasedDynamicFeeHook is BaseHook {
 
-    uint24 fee;
+    uint256 constant MIN_FEE = 1000; // 0.1%
 
     constructor(IPoolManager _poolManager) BaseHook(_poolManager) {}
 
@@ -28,17 +28,20 @@ contract VolBasedDynamicFeeHook is BaseHook {
         });
     }
 
-    function setDynamicFee(PoolKey calldata key) public {
-        poolManager.updateDynamicSwapFee(key, fee);
-    }
-
-    function getVolAndPrice(PoolKey calldata key) public view returns (int256, uint256){
+    function getVolAndPrice(PoolKey calldata key) public view returns (uint256, uint256){
         return (100, 100);
     }
 
-    function setFee(IPoolManager.SwapParams calldata swapData, int256 volatility, uint256 marketPrice) internal
-    {
-        fee = 6900;
+    function calculateFee(uint256 volume, uint256 volatility) internal pure returns (uint256 fee){
+        uint256 volume_factor = 500000; // 50%
+        uint256 volatility_factor = 2740; // 1/365 = 0.274 %
+        // int256 trade_reduces_gap_factor = 1;
+        fee = MIN_FEE + (volume_factor * (volume ** 1500000) * (volatility_factor * (volatility ** 2000000)));
+        // We reduce the fee for when trades bring us further from market because those tend to be more uninformed traders
+        // if (!tradeReducesGap) {
+        //     fee *= trade_reduces_gap_factor;
+        // }
+        return fee;
     }
 
     function beforeSwap(address, PoolKey calldata key, IPoolManager.SwapParams calldata swapData, bytes calldata)
@@ -46,13 +49,9 @@ contract VolBasedDynamicFeeHook is BaseHook {
         override
         returns (bytes4)
     {
-        key.fee;
-        int256 dx = swapData.amountSpecified;
-
-        (int256 volatility, uint256 marketPrice) = getVolAndPrice(key);
-
-        setFee(swapData, volatility, marketPrice);
-        setDynamicFee(key);
+        (uint256 volatility,) = getVolAndPrice(key);
+        uint256 fee = calculateFee(uint256(swapData.amountSpecified), volatility);
+        poolManager.updateDynamicSwapFee(key, 6900);
 
         return BaseHook.beforeSwap.selector;
     }
