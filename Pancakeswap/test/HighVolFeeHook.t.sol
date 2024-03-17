@@ -29,6 +29,7 @@ contract HighVolTest is Test, CLTestUtils {
 
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl("sepolia"), 5062165); // 10 Jan 2024
+        assertEq(block.number, 5062165);
 
         (currency0, currency1) = deployContractsWithEthUsdTokens();
         volBasedHook = new VolBasedFeeHook(poolManager, new MarketDataProvider());

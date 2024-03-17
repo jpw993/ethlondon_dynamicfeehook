@@ -29,6 +29,7 @@ contract MidVolTest is Test, CLTestUtils {
 
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl("sepolia"), 5206590); // 1 Jan 2024
+        assertEq(block.number, 5206590);
 
         (currency0, currency1) = deployContractsWithEthUsdTokens();
         volBasedHook = new VolBasedFeeHook(poolManager, new MarketDataProvider());
