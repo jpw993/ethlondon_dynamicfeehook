@@ -26,7 +26,7 @@ contract MidVolDynamicFeeHookTest is Test, Deployers {
 
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl("sepolia"), 5206590); // 1 Jan 2024
-        assertGt(block.number, 0);
+        assertEq(block.number, 5206590);
 
         // creates the pool manager, utility routers, and test tokens
         Deployers.deployFreshManagerAndRouters();

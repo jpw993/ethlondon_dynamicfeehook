@@ -26,7 +26,7 @@ contract LowVolDynamicFeeHookTest is Test, Deployers {
 
     function setUp() public {
         vm.createSelectFork(vm.rpcUrl("sepolia"), 5384450); // 2 Feb 2024
-        assertGt(block.number, 0);
+        assertEq(block.number, 5384450);
 
         // creates the pool manager, utility routers, and test tokens
         Deployers.deployFreshManagerAndRouters();
