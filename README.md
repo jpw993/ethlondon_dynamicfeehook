@@ -1,15 +1,11 @@
 # v4 dynamic fee based on market volatility and trade order size
 ### **Portects liquidity providers against impermanent los using dynamic fees based on market volatility**
 
+## Uniswap
+### See /Uniswap
 
-### Build
+## Pancakeswap
+### See /Pancakeswap
 
-```shell
-$ forge build
-```
-
-### Test
-
-```shell
-$ forge test
-```
+## Chainlink
+### See both /Uniswap and /Pancakeswap for use of Chainlink market data oracles 
