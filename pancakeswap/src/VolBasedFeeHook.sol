@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
-import "forge-std/console.sol";
-
 import {PoolKey} from "@pancakeswap/v4-core/src/types/PoolKey.sol";
 import {BalanceDelta} from "@pancakeswap/v4-core/src/types/BalanceDelta.sol";
 import {PoolId, PoolIdLibrary} from "@pancakeswap/v4-core/src/types/PoolId.sol";
@@ -56,12 +54,8 @@ contract VolBasedFeeHook is CLBaseHook, ICLDynamicFeeManager {
     function getFee(address, /*sender*/ PoolKey calldata /*key*/ ) external view override returns (uint24) {
         uint256 volatility = marketDataProvider.getVol();
         uint256 price = marketDataProvider.getPrice();
-        // console.logUint(volatility);
-        // console.logUint(price);
-        // console.logUint(abs(amountSpecified));
 
         return getFeeImpl(abs(amountSpecified), volatility, price);
-        // return getFeeImpl(15e19, volatility, price);
     }
 
     function abs(int256 x) private pure returns (uint256) {
@@ -78,11 +72,6 @@ contract VolBasedFeeHook is CLBaseHook, ICLDynamicFeeManager {
         uint256 constant_factor = 2;
 
         uint256 fee_per_lot = MIN_FEE + (constant_factor * scaled_volume * scaled_vol ** 2);
-        // console.log("scaled_volume");
-        // console.logUint(scaled_volume);
-        // console.logUint(scaled_vol);
-        // console.logUint(fee_per_lot);
-        // console.logUint(fee_per_lot / price);
 
         return uint24((fee_per_lot / price / 1e10));
     }
