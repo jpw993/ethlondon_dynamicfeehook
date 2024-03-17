@@ -6,15 +6,15 @@ import {BaseHook} from "v4-periphery/BaseHook.sol";
 import {Hooks} from "v4-core/src/libraries/Hooks.sol";
 import {IPoolManager} from "v4-core/src/interfaces/IPoolManager.sol";
 import {PoolKey} from "v4-core/src/types/PoolKey.sol";
-import {MarketData} from "./MarketData.sol";
+import {MarketDataProvider} from "./MarketDataProvider.sol";
 
 contract VolBasedDynamicFeeHook is BaseHook {
     uint256 constant MIN_FEE = 35e23;
 
-    MarketData immutable marketDataProvider;
+    MarketDataProvider immutable marketDataProvider;
 
-    constructor(IPoolManager _poolManager, MarketData _marketData) BaseHook(_poolManager) {
-        marketDataProvider = _marketData;
+    constructor(IPoolManager _poolManager, MarketDataProvider _marketDataProvider) BaseHook(_poolManager) {
+        marketDataProvider = _marketDataProvider;
     }
 
     function getHookPermissions() public pure override returns (Hooks.Permissions memory) {

@@ -15,7 +15,7 @@ import {VolBasedDynamicFeeHook} from "../src/VolBasedDynamicFee.sol";
 import {HookMiner} from "./utils/HookMiner.sol";
 import {FixedPointMathLib} from "solmate/utils/FixedPointMathLib.sol";
 import {SwapFeeLibrary} from "v4-core/src/libraries/SwapFeeLibrary.sol";
-import {MarketData} from "../src/MarketData.sol";
+import {MarketDataProvider} from "../src/MarketDataProvider.sol";
 
 contract MidVolDynamicFeeHookTest is Test, Deployers {
     using PoolIdLibrary for PoolKey;
@@ -33,7 +33,7 @@ contract MidVolDynamicFeeHookTest is Test, Deployers {
         Deployers.deployMintAndApprove2Currencies();
 
         // Deploy the hook to an address with the correct flags
-        MarketData md = new MarketData();
+        MarketDataProvider md = new MarketDataProvider();
         uint160 flags = uint160(Hooks.BEFORE_SWAP_FLAG);
         (address hookAddress, bytes32 salt) = HookMiner.find(
             address(this), flags, type(VolBasedDynamicFeeHook).creationCode, abi.encode(address(manager), address(md))
