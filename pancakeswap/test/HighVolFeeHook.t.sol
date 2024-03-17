@@ -48,7 +48,7 @@ contract HighVolTest is Test, CLTestUtils {
 
         MockERC20(Currency.unwrap(currency0)).mint(address(this), 1000 ether);
         MockERC20(Currency.unwrap(currency1)).mint(address(this), 1000 ether);
-        addLiquidity(key, 1000 ether, 1000 ether, -60, 60);
+        addLiquidity(key, 1000 ether, 1000 ether, -1000, 1000);
 
         vm.startPrank(alice);
         MockERC20(Currency.unwrap(currency0)).approve(address(swapRouter), type(uint256).max);
@@ -77,40 +77,40 @@ contract HighVolTest is Test, CLTestUtils {
 
     function testHighVolLowAmt() public {
         // Arrange
-        uint128 amtIn = uint128(1 ether);
+        uint128 amtIn = uint128(10 ether);
 
         // Act
         uint256 amtOut = _swap(amtIn);
         uint256 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
-        assertEq(fee, 87480); // 0.8748%
-        assertEq(amtOut, 912517505796460798);
+        assertEq(fee, 1544); // 0.1544%
+        assertEq(amtOut, 9979700594420733265);
     }
 
     function testHighVolMidAmt() public {
         // Arrange
-        uint128 amtIn = uint128(5 ether);
+        uint128 amtIn = uint128(150 ether);
 
         // Act
         uint256 amtOut = _swap(amtIn);
         uint256 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
-        assertEq(fee, 437006); // 43.7006%
-        assertEq(amtOut, 2814946264839418196);
+        assertEq(fee, 3694); // 0.3694%
+        assertEq(amtOut, 148364588143595518015);
     }
 
     function testHighVolHighAmt() public {
         // Arrange
-        uint128 amtIn = uint128(200 ether);
+        uint128 amtIn = uint128(300 ether);
 
         // Act
         uint256 amtOut = _swap(amtIn);
         uint256 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
-        assertEq(fee, 699150); // 69.9150%
-        assertEq(amtOut, 60159157484503934952);
+        assertEq(fee, 5998); // 0.5998%
+        assertEq(amtOut, 293926118931424146658);
     }
 }

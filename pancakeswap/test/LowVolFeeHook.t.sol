@@ -28,7 +28,7 @@ contract LowVolTest is Test, CLTestUtils {
     address alice = makeAddr("alice");
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("sepolia"), 5206590); // 2 Feb 2024
+        vm.createSelectFork(vm.rpcUrl("sepolia"), 5384450); // 2 Feb 2024
 
         (currency0, currency1) = deployContractsWithEthUsdTokens();
         volBasedHook = new VolBasedFeeHook(poolManager, new MarketDataProvider());
@@ -84,33 +84,33 @@ contract LowVolTest is Test, CLTestUtils {
         uint256 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
-        assertEq(fee, 1523); // 0.1523%
-        assertEq(amtOut, 998428382604601043);
+        assertEq(fee, 1034); // 0.1523%
+        assertEq(amtOut, 998917334973762125);
     }
 
     function testLowVolMidAmt() public {
         // Arrange
-        uint128 amtIn = uint128(150 ether);
+        uint128 amtIn = uint128(15 ether);
 
         // Act
         uint256 amtOut = _swap(amtIn);
         uint256 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
-        assertEq(fee, 1770); // 0.01%
-        assertEq(amtOut, 148649022962760029168);
+        assertEq(fee, 1224); // 0.1224%
+        assertEq(amtOut, 14970701992238324488);
     }
 
     function testLowVolHighAmt() public {
         // Arrange
-        uint128 amtIn = uint128(300 ether);
+        uint128 amtIn = uint128(30 ether);
 
         // Act
         uint256 amtOut = _swap(amtIn);
         uint256 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
-        assertEq(fee, 2019); // 0.2019%
-        assertEq(amtOut, 295085776079052432460);
+        assertEq(fee, 1426); // 0.1426%
+        assertEq(amtOut, 29913517558636636950);
     }
 }
