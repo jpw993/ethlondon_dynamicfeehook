@@ -81,7 +81,7 @@ contract MidVolTest is Test, CLTestUtils {
 
         // Act
         uint256 amtOut = _swap(amtIn);
-        uint256 fee = volBasedHook.getFee(address(this), key);
+        uint24 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
         assertEq(fee, 1523); // 0.1523%
@@ -94,10 +94,10 @@ contract MidVolTest is Test, CLTestUtils {
 
         // Act
         uint256 amtOut = _swap(amtIn);
-        uint256 fee = volBasedHook.getFee(address(this), key);
+        uint24 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
-        assertEq(fee, 1770); // 0.01%
+        assertEq(fee, 1770); // 0.1770%
         assertEq(amtOut, 148649022962760029168);
     }
 
@@ -107,7 +107,7 @@ contract MidVolTest is Test, CLTestUtils {
 
         // Act
         uint256 amtOut = _swap(amtIn);
-        uint256 fee = volBasedHook.getFee(address(this), key);
+        uint24 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
         assertEq(fee, 2019); // 0.2019%

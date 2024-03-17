@@ -81,7 +81,7 @@ contract HighVolTest is Test, CLTestUtils {
 
         // Act
         uint256 amtOut = _swap(amtIn);
-        uint256 fee = volBasedHook.getFee(address(this), key);
+        uint24 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
         assertEq(fee, 1544); // 0.1544%
@@ -94,7 +94,7 @@ contract HighVolTest is Test, CLTestUtils {
 
         // Act
         uint256 amtOut = _swap(amtIn);
-        uint256 fee = volBasedHook.getFee(address(this), key);
+        uint24 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
         assertEq(fee, 3694); // 0.3694%
@@ -107,7 +107,7 @@ contract HighVolTest is Test, CLTestUtils {
 
         // Act
         uint256 amtOut = _swap(amtIn);
-        uint256 fee = volBasedHook.getFee(address(this), key);
+        uint24 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
         assertEq(fee, 5998); // 0.5998%

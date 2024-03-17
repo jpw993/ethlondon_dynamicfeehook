@@ -9,7 +9,7 @@ import {PoolKey} from "v4-core/src/types/PoolKey.sol";
 import {MarketData} from "./MarketData.sol";
 
 contract VolBasedDynamicFeeHook is BaseHook {
-    uint256 constant MIN_FEE = 1000; // 0.1%
+    uint256 constant MIN_FEE = 35e23;
 
     MarketData immutable marketDataProvider;
 
@@ -40,7 +40,7 @@ contract VolBasedDynamicFeeHook is BaseHook {
         return marketDataProvider.getEthUsdPrice();
     }
 
-    function calculateFee(uint256 volume, uint256 volatility) public pure returns (uint24 fee) {
+    function calculateFee(uint256 volume, uint256 volatility, uint256 price) internal pure returns (uint24) {
         uint256 scaled_volume = volume / 150;
         uint256 longterm_eth_volatility = 60;
         uint256 scaled_vol = volatility / longterm_eth_volatility;
@@ -48,7 +48,7 @@ contract VolBasedDynamicFeeHook is BaseHook {
 
         uint256 fee_per_lot = MIN_FEE + (constant_factor * scaled_volume * scaled_vol ** 2);
 
-        return uint24(fee_per_lot);
+        return uint24((fee_per_lot / price / 1e10));
     }
 
     function abs(int256 x) private pure returns (uint256) {
@@ -64,9 +64,16 @@ contract VolBasedDynamicFeeHook is BaseHook {
         returns (bytes4)
     {
         uint256 volatility = getVolatility();
-        uint24 fee = calculateFee(abs(swapData.amountSpecified), volatility);
+        uint256 price = getPrice();
+        uint24 fee = calculateFee(abs(swapData.amountSpecified), volatility, price);
         poolManager.updateDynamicSwapFee(key, fee);
 
         return BaseHook.beforeSwap.selector;
+    }
+
+    function getFee(int256 amt) external view returns (uint24) {
+        uint256 volatility = getVolatility();
+        uint256 price = getPrice();
+        return calculateFee(abs(amt), volatility, price);
     }
 }

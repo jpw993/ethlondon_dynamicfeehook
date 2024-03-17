@@ -81,10 +81,10 @@ contract LowVolTest is Test, CLTestUtils {
 
         // Act
         uint256 amtOut = _swap(amtIn);
-        uint256 fee = volBasedHook.getFee(address(this), key);
+        uint24 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
-        assertEq(fee, 1034); // 0.1523%
+        assertEq(fee, 1034); // 0.1034%
         assertEq(amtOut, 998917334973762125);
     }
 
@@ -94,7 +94,7 @@ contract LowVolTest is Test, CLTestUtils {
 
         // Act
         uint256 amtOut = _swap(amtIn);
-        uint256 fee = volBasedHook.getFee(address(this), key);
+        uint24 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
         assertEq(fee, 1224); // 0.1224%
@@ -107,7 +107,7 @@ contract LowVolTest is Test, CLTestUtils {
 
         // Act
         uint256 amtOut = _swap(amtIn);
-        uint256 fee = volBasedHook.getFee(address(this), key);
+        uint24 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
         assertEq(fee, 1426); // 0.1426%
