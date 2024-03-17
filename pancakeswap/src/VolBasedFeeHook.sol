@@ -1,6 +1,8 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.24;
 
+import "forge-std/console.sol";
+
 import {PoolKey} from "@pancakeswap/v4-core/src/types/PoolKey.sol";
 import {BalanceDelta} from "@pancakeswap/v4-core/src/types/BalanceDelta.sol";
 import {PoolId, PoolIdLibrary} from "@pancakeswap/v4-core/src/types/PoolId.sol";
@@ -13,7 +15,7 @@ import {MarketDataProvider} from "./MarketDataProvider.sol";
 contract VolBasedFeeHook is CLBaseHook, ICLDynamicFeeManager {
     using PoolIdLibrary for PoolKey;
 
-    uint256 constant MIN_FEE = 100; // 0.01%
+    uint256 constant MIN_FEE = 35e23;
     MarketDataProvider immutable marketDataProvider;
 
     int256 amountSpecified;
@@ -53,7 +55,13 @@ contract VolBasedFeeHook is CLBaseHook, ICLDynamicFeeManager {
 
     function getFee(address, /*sender*/ PoolKey calldata /*key*/ ) external view override returns (uint24) {
         uint256 volatility = marketDataProvider.getVol();
-        return getFeeImpl(abs(amountSpecified), volatility / 1000);
+        uint256 price = marketDataProvider.getPrice();
+        // console.logUint(volatility);
+        // console.logUint(price);
+        // console.logUint(abs(amountSpecified));
+
+        return getFeeImpl(abs(amountSpecified), volatility, price);
+        // return getFeeImpl(15e19, volatility, price);
     }
 
     function abs(int256 x) private pure returns (uint256) {
@@ -63,14 +71,19 @@ contract VolBasedFeeHook is CLBaseHook, ICLDynamicFeeManager {
         return uint256(-x);
     }
 
-    function getFeeImpl(uint256 volume, uint256 volatility) internal pure returns (uint24) {
+    function getFeeImpl(uint256 volume, uint256 volatility, uint256 price) internal pure returns (uint24) {
         uint256 scaled_volume = volume / 150;
         uint256 longterm_eth_volatility = 60;
         uint256 scaled_vol = volatility / longterm_eth_volatility;
         uint256 constant_factor = 2;
 
         uint256 fee_per_lot = MIN_FEE + (constant_factor * scaled_volume * scaled_vol ** 2);
+        // console.log("scaled_volume");
+        // console.logUint(scaled_volume);
+        // console.logUint(scaled_vol);
+        // console.logUint(fee_per_lot);
+        // console.logUint(fee_per_lot / price);
 
-        return uint24(fee_per_lot);
+        return uint24((fee_per_lot / price / 1e10));
     }
 }

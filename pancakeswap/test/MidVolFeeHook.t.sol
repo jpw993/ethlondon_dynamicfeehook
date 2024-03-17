@@ -16,7 +16,7 @@ import {FeeLibrary} from "@pancakeswap/v4-core/src/libraries/FeeLibrary.sol";
 import {MarketDataProvider} from "../src/MarketDataProvider.sol";
 import {VolBasedFeeHook} from "../src/VolBasedFeeHook.sol";
 
-contract LowVolTest is Test, CLTestUtils {
+contract MidVolTest is Test, CLTestUtils {
     using PoolIdLibrary for PoolKey;
     using CLPoolParametersHelper for bytes32;
 
@@ -28,7 +28,7 @@ contract LowVolTest is Test, CLTestUtils {
     address alice = makeAddr("alice");
 
     function setUp() public {
-        vm.createSelectFork(vm.rpcUrl("sepolia"), 5206590); // 2 Feb 2024
+        vm.createSelectFork(vm.rpcUrl("sepolia"), 5384450); // 1 Jan 2024
 
         (currency0, currency1) = deployContractsWithEthUsdTokens();
         volBasedHook = new VolBasedFeeHook(poolManager, new MarketDataProvider());
@@ -48,7 +48,7 @@ contract LowVolTest is Test, CLTestUtils {
 
         MockERC20(Currency.unwrap(currency0)).mint(address(this), 1000 ether);
         MockERC20(Currency.unwrap(currency1)).mint(address(this), 1000 ether);
-        addLiquidity(key, 1000 ether, 1000 ether, -1000, 1000);
+        addLiquidity(key, 1000 ether, 1000 ether, -60, 60);
 
         vm.startPrank(alice);
         MockERC20(Currency.unwrap(currency0)).approve(address(swapRouter), type(uint256).max);
@@ -75,7 +75,7 @@ contract LowVolTest is Test, CLTestUtils {
         );
     }
 
-    function testLowVolLowAmt() public {
+    function testMidVolLowAmt() public {
         // Arrange
         uint128 amtIn = uint128(1 ether);
 
@@ -84,33 +84,33 @@ contract LowVolTest is Test, CLTestUtils {
         uint256 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
-        assertEq(fee, 1523); // 0.1523%
-        assertEq(amtOut, 998428382604601043);
+        assertEq(fee, 87480); // 0.8748%
+        assertEq(amtOut, 912517505796460798);
     }
 
-    function testLowVolMidAmt() public {
+    function testMidVolMidAmt() public {
         // Arrange
-        uint128 amtIn = uint128(150 ether);
+        uint128 amtIn = uint128(5 ether);
 
         // Act
         uint256 amtOut = _swap(amtIn);
         uint256 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
-        assertEq(fee, 1770); // 0.01%
-        assertEq(amtOut, 148649022962760029168);
+        assertEq(fee, 437006); // 43.7006%
+        assertEq(amtOut, 2814946264839418196);
     }
 
-    function testLowVolHighAmt() public {
+    function testMidVolHighAmt() public {
         // Arrange
-        uint128 amtIn = uint128(300 ether);
+        uint128 amtIn = uint128(200 ether);
 
         // Act
         uint256 amtOut = _swap(amtIn);
         uint256 fee = volBasedHook.getFee(address(this), key);
 
         // Assert
-        assertEq(fee, 2019); // 0.2019%
-        assertEq(amtOut, 295085776079052432460);
+        assertEq(fee, 699150); // 69.9150%
+        assertEq(amtOut, 60159157484503934952);
     }
 }
