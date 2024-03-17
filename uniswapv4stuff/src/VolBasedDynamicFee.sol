@@ -36,6 +36,10 @@ contract VolBasedDynamicFeeHook is BaseHook {
         return marketDataProvider.getEthUsdVol();
     }
 
+    function getPrice() public view returns (uint256) {
+        return marketDataProvider.getEthUsdPrice();
+    }
+
     function calculateFee(uint256 volume, uint256 volatility) public pure returns (uint24 fee) {
         uint256 scaled_volume = volume / 150;
         uint256 longterm_eth_volatility = 60;
